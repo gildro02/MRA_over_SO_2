@@ -1,3 +1,7 @@
+% 2D case - Plots a graph of the analitic bound compared to the empirical errors of
+% of the spectral algorithm, for exact given moments, for different
+% distributions.
+
 B=10;
 Q=2;
 M=2*B+1;

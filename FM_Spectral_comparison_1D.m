@@ -1,3 +1,5 @@
+% 1D case - Compares the FM algorithm and the Spectral algorithm with the analytical
+% bound, as a function of the SNR for different distributions.
 tic
 sigma_vec_reduced=logspace(0,3,10).';
 num_unique_sigma=length(sigma_vec_reduced);

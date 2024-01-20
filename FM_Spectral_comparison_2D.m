@@ -1,3 +1,5 @@
+% 2D case - Compares the FM algorithm and the Spectral algorithm with the analytical
+% bound, as a function of the SNR for different distributions.
 %% Parameter Setup
 sigma_vec_reduced=logspace(-4,1,10).';
 %sigma_vec_reduced=zeros(10,1);
