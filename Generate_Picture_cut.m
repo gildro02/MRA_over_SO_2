@@ -1,9 +1,20 @@
+% Input: 1) name: a char vector of the the file name of the picture to be
+% spanned by Fourier-Bessel Coefficient.
+% 2) B,Q: the requested cut-off frequency for the angular and radial
+% frequencies. all freqiencies above these will be thrown out.
+% 3) isUniformPowerSpectrum: a binary value. If true, the function ensures
+% that the power spectrum is uniform, by normalizing each F-B coefficient
+% to be of size 1. If false, it does not alter the power spectrum after
+% cutting excessive frequencies.
+% 
+% Output: 1) coeff: the F-B coefficient vector, organized first by angular
+% and then by radial frequencies (as a dictionary).
+% 2) Proj_Picture: the picture corresponding to those F-B coefficients.
+
 function [coeff,Proj_Picture]=Generate_Picture_cut(name,B,Q,isUniformPowerSpectrum)
 %close all
 addpath(genpath('basis'))
 addpath(genpath('common'))
-addpath(genpath('examples'))
-addpath(genpath('fourier'))
 addpath(genpath('projections'))
 
 tic

@@ -21,7 +21,7 @@ W_M=(1/sqrt(M))*dftmtx(M);
 W_Q=(1/sqrt(Q))*dftmtx(Q);
 W=kron(W_M,W_Q);
 
-N=2.5e6; %num of rotated photos;
+N=5e5; %num of rotated photos;
 %% Relevant frequencies
 [freq_file_name]=saveFrequencies(Q,B);
 load(freq_file_name);

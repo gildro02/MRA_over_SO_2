@@ -1,3 +1,6 @@
+% Input: C, a square matrix
+% Output: check, a logical value which is true for when C is circulant and
+% false otherwise.
 function [check] = iscirculant(C)
 check=1;
 for n=2:size(C,1)

@@ -1,5 +1,12 @@
+% Input: x,y are column vectors of the same length Q(2B+1)
+% Output: 1) The circular squared error between them, assuming that they represent the
+% Fourier-Bessel coefficients of a 2D function, defined on the unit disk. This rotation
+% is restricted to quantization by steps of size 2pi/(2B+1).
+% 2) l, the index of rotation of the first vector where the mininum
+% distance is met (and the corresponding angle of rotation is
+% phi = l*2pi/(2B+1)).
 function [err_squared,l] = Circ_Error_Continuous_2D(x,y,Q,B)
-%x,y are colomn vectors of length Q(2B+1)x1
+
 M=2*B+1;
 mat_x=mat(x,Q,B);
 mat_y=mat(y,Q,B);

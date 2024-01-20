@@ -1,5 +1,9 @@
+% Input: Q,B
+% Output: The function saves all relevant frequency vectors in a .mat file
+% named file_name='freq.mat', to be loaded later in scripts.
+
 function [file_name] = saveFrequencies(Q,B)
-% Saves relevant frequency vector
+
 k_symm_1B=-B:B;
 k_half_1B=0:B;
 k_symm_2B=-2*B:2*B;

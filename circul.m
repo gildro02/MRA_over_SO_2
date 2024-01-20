@@ -1,4 +1,5 @@
+% Input: v, a vector.
+% Output: C, a circulant matrix with v as it's first column
 function [C] = circul(v)
-%Create circulant matrix with first colomn v;
 C=gallery("circul",v).';
 end

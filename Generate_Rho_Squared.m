@@ -1,13 +1,22 @@
-function [rho_squared_coeff,rho_squared]=Generate_Rho_Squared(seed_rho_coeff)
-%returns positive, normilized, Band-Limited distribution from seed
-%coefficients seed_rho_coeff. Distribution is periodic on [0,2pi];
+% Input: 1) seed: seed coefficients of the resulting distribution,
+% corresponding to frequencies 1:B (a vector of length 1B).
+% Output: 1) rho_squared_coeff: the 4B+1 x 1 vector of Fourier coefficients of the
+% distribution rho_squared, corresponding to frequencies -2B:2B.
+% 2) rho_squared: the resulting distribution, defined by first completeing
+% 'seed' to frequencies -B:B (with 1/2pi as a middle value), then squaring
+% the function by convoluting this vector with itself (this ensures
+% non-negativity), and then renormalizing.
 
-B=length(seed_rho_coeff);
-s=size(seed_rho_coeff);
+function [rho_squared_coeff,rho_squared]=Generate_Rho_Squared(seed)
+%returns positive, normilized, Band-Limited distribution from seed
+%coefficients seed. Distribution is periodic on [0,2pi];
+
+B=length(seed);
+s=size(seed);
 if s(2)==1
-    seed_rho_coeff=seed_rho_coeff.';
+    seed=seed.';
 end
-rho_coeff=[conj(flip(seed_rho_coeff)) 1/(2*pi) seed_rho_coeff]; %1/2pi for normilization of distribution to 1
+rho_coeff=[conj(flip(seed)) 1/(2*pi) seed]; %1/2pi for normilization of distribution to 1
 
 %{
 full_rho_freq=-B:B;

@@ -1,5 +1,11 @@
+% Input: x,y are column vectors of the same length Q(2B+1)x1
+% Output: 1) The circular squared error between them, assuming that they represent the
+% Fourier coefficients of a 2D function, defined on the unit disk. This rotation
+% is unrestricted, with no quantization limit.
+% 2) theta_min, the angle of rotation of the first vector where the mininum
+% distance is met.
+
 function [err_squared,theta_min] = circ_error_continuous_unrestricted_2D(x,y,Q,B)
-%x,y are colomn vectors of length Q(2B+1)x1
 M=2*B+1;
 d_theta=1e-5;
 theta=0:d_theta:(2*pi-d_theta);

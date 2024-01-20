@@ -1,6 +1,6 @@
+% Input: zeta, a Q x (2B+1) matrix zeta
+% Output: BTTB with vec(zeta) as its first column
 function [T] = BTTB(zeta)
-% takes a Q x (2B+1) matrix zeta and returns the BTTB with zeta as its
-% first column.
 Q=size(zeta,1);
 M=size(zeta,2);
 B=(M-1)/2;
