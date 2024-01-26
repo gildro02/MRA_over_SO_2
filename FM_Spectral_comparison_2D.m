@@ -1,8 +1,8 @@
 %% Parameter Setup
-sigma_vec_reduced=logspace(-1.5,1.5,1).';
+sigma_vec_reduced=logspace(-1.5,1.5,30).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
-num_rep=1;
+num_rep=20;
 sigma_vec=repelem(sigma_vec_reduced,num_rep);
 %f_vec=[0,0.1,1,2];
 f_vec=[0,0.1];
@@ -22,7 +22,7 @@ W_M=(1/sqrt(M))*dftmtx(M);
 W_Q=(1/sqrt(Q))*dftmtx(Q);
 W=kron(W_M,W_Q);
 
-N=1e5; %num of rotated photos;
+N=3e6; %num of rotated photos;
 %% Relevant frequencies
 [freq_file_name]=saveFrequencies(Q,B);
 load(freq_file_name);
@@ -68,7 +68,11 @@ for UPS=1:length(isUniformPowerSpectrum)
         %% Generate Data
         for sigma_index=1:length(sigma_vec)
             toc
-            disp("f_index="+f_index+", sigma_index="+sigma_index)
+            disp("f_index="+f_index+", sigma_index="+sigma_index+", UPS="+UPS)
+            done_percent=100.*(f_index*sigma_index*UPS)./...
+                (length(sigma_vec)*length(f_vec)*length(isUniformPowerSpectrum));
+            disp(done_percent+"% done");
+            
             sigma=sigma_vec(sigma_index); %noise level
             dt=t(2)-t(1); %Quantization of [0,2pi].
             rotations=randsample(t,N,true,abs(rho_func(t))).';
@@ -347,8 +351,6 @@ for UPS=1:length(isUniformPowerSpectrum)
     end
     sgtitle("$\textnormal{FM Algorithm vs. Spectral Algorithm, isUniformPowerSpectrum=}"...
         +isUniformPowerSpectrum(UPS)+"$","interpreter","latex","fontsize",25)
-    
-    
     
     if isUniformPowerSpectrum(UPS)==1
         figure_string='Comparison_2D_With_Uniform_Spectrum';
