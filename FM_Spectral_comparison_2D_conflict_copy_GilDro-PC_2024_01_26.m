@@ -1,14 +1,15 @@
+% 2D case - Compares the FM algorithm and the Spectral algorithm with the analytical
+% bound, as a function of the SNR for different distributions.
 %% Parameter Setup
-sigma_vec_reduced=logspace(-2,2,20).';
+sigma_vec_reduced=logspace(-4,1,10).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
-num_rep=10;
+num_rep=1;
 sigma_vec=repelem(sigma_vec_reduced,num_rep);
 %f_vec=[0,0.1,1,2];
 f_vec=[0,0.1];
-%f_vec=[0];
-isUniformPowerSpectrum=[0,1];
-%isUniformPowerSpectrum=[0];
+%isUniformPowerSpectrum=[0,1];
+isUniformPowerSpectrum=[0];
 
 err_squared_FM=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
 err_squared_Spectral_true=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
@@ -27,15 +28,15 @@ N=5e5; %num of rotated photos;
 [freq_file_name]=saveFrequencies(Q,B);
 load(freq_file_name);
 %% Definition of Picture
+
 images=cell(length(isUniformPowerSpectrum),1);
 a_symm_1B_cell=cell(length(isUniformPowerSpectrum),1);
 
 [a_symm_1B_cell{1},images{1}]=Generate_Picture_cut([pwd '\Flower_Images\Oxalis_tetraphylla_flower.jpg'],B,Q,isUniformPowerSpectrum(1));
-[a_symm_1B_cell{2},images{2}]=Generate_Picture_cut([pwd '\Flower_Images\Oxalis_tetraphylla_flower.jpg'],B,Q,isUniformPowerSpectrum(2));
+%[a_symm_1B_cell{2},images{2}]=Generate_Picture_cut([pwd '\Flower_Images\Oxalis_tetraphylla_flower.jpg'],B,Q,isUniformPowerSpectrum(2));
 P_a_cell=cellfun(@(x) abs(x).^2,a_symm_1B_cell,"UniformOutput",false);
 
 %% Numerics
-tic
 for UPS=1:length(isUniformPowerSpectrum)
     a_symm_1B=a_symm_1B_cell{UPS};
     a_symm_1B_mat=mat(a_symm_1B,Q,B);
@@ -67,15 +68,14 @@ for UPS=1:length(isUniformPowerSpectrum)
 
         %% Generate Data
         for sigma_index=1:length(sigma_vec)
-            toc
-            disp("f_index="+f_index+", sigma_index="+sigma_index)
+            sprintf("f_index="+f_index+", sigma_index="+sigma_index)
             sigma=sigma_vec(sigma_index); %noise level
             dt=t(2)-t(1); %Quantization of [0,2pi].
             rotations=randsample(t,N,true,abs(rho_func(t))).';
             %absolute value to avoid numeric negatives, rho should always be positive.
 
             a_half_1B_mat_rot=a_half_1B_mat.*exp(-1i*k_half_1B_Q_mat.*permute(rotations,[3,2,1]))...
-                +sigma*randn([size(a_half_1B_mat) N]);
+                +sigma*randn(size(a_half_1B_mat));
             a_half_1B_mat_rot_conj=conj(flip(reshape(...
                 a_half_1B_mat_rot(repmat(k_half_1B_Q_mat~=0,[1,1,N]))...
                 ,[Q,B,N]),2));
@@ -100,7 +100,6 @@ for UPS=1:length(isUniformPowerSpectrum)
             M_2_true=(2*pi)*diag(a_symm_1B)*T*diag(conj(a_symm_1B))+(sigma^2)*Logical_Bias_Mat; %'=complex conjugate transpose
             M_2_emp=(1/N)*(a_symm_1B_rot*a_symm_1B_rot');
 
-            diff_M2_true_emp(sigma_index) = norm(M_2_true-M_2_emp,"fro");
             M_2_true_wave=M_2_true-(sigma^2)*Logical_Bias_Mat;
             M_2_emp_wave=M_2_emp-(sigma^2)*Logical_Bias_Mat;
 
@@ -231,9 +230,9 @@ for UPS=1:length(isUniformPowerSpectrum)
                 bound(f_index,UPS)=real(bound(f_index,UPS));
             end
             %for testing
-            if err_squared_Spectral_emp(sigma_index,f_index,UPS)>=5e1
-                %error()
-            end
+            %if err_squared_Spectral_emp(sigma_index,f_index,UPS)>=1e2
+            %    error()
+            %end
         end
     end
 end
