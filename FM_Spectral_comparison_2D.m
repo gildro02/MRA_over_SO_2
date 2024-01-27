@@ -1,8 +1,13 @@
 %% Parameter Setup
-sigma_vec_reduced=logspace(-1.5,1.5,30).';
+N=1e6; %num of rotated photos;
+B=10;
+Q=1;
+
+num_rep=20;
+sigma_vec_reduced=logspace(0,3,10).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
-num_rep=20;
+
 sigma_vec=repelem(sigma_vec_reduced,num_rep);
 %f_vec=[0,0.1,1,2];
 f_vec=[0,0.1];
@@ -15,18 +20,17 @@ err_squared_Spectral_true=zeros(length(sigma_vec),length(f_vec),length(isUniform
 err_squared_Spectral_emp=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
 dist_from_circ=zeros(length(f_vec),length(isUniformPowerSpectrum));
 bound=zeros(length(f_vec),length(isUniformPowerSpectrum));
-B=10;
-Q=2;
+
 M=2*B+1;
 W_M=(1/sqrt(M))*dftmtx(M);
 W_Q=(1/sqrt(Q))*dftmtx(Q);
 W=kron(W_M,W_Q);
 
-N=3e6; %num of rotated photos;
+
 %% Relevant frequencies
 [freq_file_name]=saveFrequencies(Q,B);
 load(freq_file_name);
-%% Definition of Picture
+%% Definition of Picture & Cutting Higher Frequencies
 images=cell(length(isUniformPowerSpectrum),1);
 a_symm_1B_cell=cell(length(isUniformPowerSpectrum),1);
 
@@ -104,7 +108,7 @@ for UPS=1:length(isUniformPowerSpectrum)
             M_2_true=(2*pi)*diag(a_symm_1B)*T*diag(conj(a_symm_1B))+(sigma^2)*Logical_Bias_Mat; %'=complex conjugate transpose
             M_2_emp=(1/N)*(a_symm_1B_rot*a_symm_1B_rot');
             
-            diff_M2_true_emp(sigma_index) = norm(M_2_true-M_2_emp,"fro");
+            
             M_2_true_wave=M_2_true-(sigma^2)*Logical_Bias_Mat;
             M_2_emp_wave=M_2_emp-(sigma^2)*Logical_Bias_Mat;
             
@@ -241,6 +245,8 @@ for UPS=1:length(isUniformPowerSpectrum)
         end
     end
 end
+
+%% Plot Image
 %{
 %% Plots
 close all
@@ -277,7 +283,7 @@ for UPS=1:length(isUniformPowerSpectrum)
     colorbar('SouthOutside')
 end
 %}
-%% Plots
+%% Plot Graphs
 %close all
 figures=cell(length(isUniformPowerSpectrum),1);
 energy_of_a=zeros(length(isUniformPowerSpectrum),1);
@@ -289,7 +295,7 @@ load('./Figures_Thesis/Comparison_2D_Archive/test_number')
 test_number=test_number+1;
 save('./Figures_Thesis/Comparison_2D_Archive/test_number.mat','test_number')
 test_end_string="TestNumber_"+test_number;
-mkdir ('./Figures_Thesis/Comparison_2D_Archive', test_end_string);
+mkdir('./Figures_Thesis/Comparison_2D_Archive', test_end_string);
 
 for UPS=1:length(isUniformPowerSpectrum)
     energy_of_a(UPS)=sum(abs(a_symm_1B_cell{UPS}).^2);
@@ -326,7 +332,8 @@ for UPS=1:length(isUniformPowerSpectrum)
         title("$||T-C_{\underline{h}}||^2 = "+round(dist_from_circ(f_index,UPS),4)+"$",...
             "interpreter","latex","fontsize",15)
         axis tight
-        
+        % Critical SNR calculation
+        %{
         %SNR_critical_point= min(SNR(SNR>=1e4 & err_spectral_for_plot>=err_FM_for_plot));
         cutoff=1e-3;
         [~,SNR_critical_point_index]=min(abs(err_spectral_for_plot(SNR(:,UPS)>=cutoff)-err_FM_for_plot(SNR(:,UPS)>=cutoff)));
@@ -341,13 +348,12 @@ for UPS=1:length(isUniformPowerSpectrum)
             lg_cells{find(cellfun(@isempty,lg_cells), 1,"first" )} ="$\textnormal{Critical SNR} = "...
                 +round(SNR_critical_point./cutoff,2) + "\times {10}^{"+log10(cutoff)+"}$";
         end
-        
+        %}
         lg_cells(cellfun(@isempty,lg_cells))=[];
         lg=legend(lg_cells);
         lg.FontSize=10.5;
         lg.Location="southwest";
         lg.Interpreter="Latex";
-        %legend(cat(2,lg_cells,{"fontsize",10.5,"location","southwest"}))
     end
     sgtitle("$\textnormal{FM Algorithm vs. Spectral Algorithm, isUniformPowerSpectrum=}"...
         +isUniformPowerSpectrum(UPS)+"$","interpreter","latex","fontsize",25)
@@ -365,4 +371,4 @@ for UPS=1:length(isUniformPowerSpectrum)
     saveas(figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.png'));
     print(figures{UPS},'-depsc',strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.eps'));
 end
-%sgtitle("$\textnormal{FM Algorithm vs. Spectral Algorithm}$","interpreter","latex","fontsize",25)
+
