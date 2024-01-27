@@ -1,16 +1,19 @@
+% 2D case - Compares the FM algorithm and the Spectral algorithm with the analytical
+% bound, as a function of the SNR for different distributions.
+
 %% Parameter Setup
 N=1e6; %num of rotated photos;
 B=10;
 Q=1;
 
-num_rep=20;
-sigma_vec_reduced=logspace(0,3,10).';
+num_rep=50;
+sigma_vec_reduced=logspace(0,3,50).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
 
 sigma_vec=repelem(sigma_vec_reduced,num_rep);
 %f_vec=[0,0.1,1,2];
-f_vec=[0,0.1];
+f_vec=[0,0.1,1,2];
 %f_vec=[0];
 isUniformPowerSpectrum=[0,1];
 %isUniformPowerSpectrum=[0];
@@ -371,4 +374,4 @@ for UPS=1:length(isUniformPowerSpectrum)
     saveas(figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.png'));
     print(figures{UPS},'-depsc',strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.eps'));
 end
-
+disp("remember, f_vec is of length 4 need to check those graphs too")
