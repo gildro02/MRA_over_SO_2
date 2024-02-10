@@ -5,7 +5,7 @@
 B=10;
 Q=2;
 M=2*B+1;
-
+image_size=51;
 W_M=(1/sqrt(M))*dftmtx(M);
 W_Q=(1/sqrt(Q))*dftmtx(Q);
 W=kron(W_M,W_Q);
@@ -41,8 +41,8 @@ isUniformPowerSpectrum=[0,1];
 images=cell(length(isUniformPowerSpectrum),1);
 a_symm_1B_cell=cell(length(isUniformPowerSpectrum),1);
 
-[a_symm_1B_cell{1},images{1}]=Generate_Picture_cut('flower-1.jpg',B,Q,isUniformPowerSpectrum(1));
-[a_symm_1B_cell{2},images{2}]=Generate_Picture_cut('flower-1.jpg',B,Q,isUniformPowerSpectrum(2));
+[a_symm_1B_cell{1},images{1}]=Generate_Picture_cut('.\Flower_Images\Oxalis_tetraphylla_flower.jpg',B,Q,image_size,isUniformPowerSpectrum(1));
+[a_symm_1B_cell{2},images{2}]=Generate_Picture_cut('.\Flower_Images\Oxalis_tetraphylla_flower.jpg',B,Q,image_size,isUniformPowerSpectrum(2));
 
 %% Spectral Algorithm
 %f_vec=logspace(-3,-20,20).';

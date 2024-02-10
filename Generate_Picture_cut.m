@@ -10,8 +10,10 @@
 % Output: 1) coeff: the F-B coefficient vector, organized first by angular
 % and then by radial frequencies (as a dictionary).
 % 2) Proj_Picture: the picture corresponding to those F-B coefficients.
+% 3) Phi_ns_mat: a matrix with its column vectors being the basis vectors
+% of the F-B basis, orginized in the same way as coeff.
 
-function [coeff,Proj_Picture]=Generate_Picture_cut(name,B,Q,isUniformPowerSpectrum)
+function [coeff,Proj_Picture,Phi_ns_mat]=Generate_Picture_cut(name,B,Q,image_size,isUniformPowerSpectrum)
 %close all
 addpath(genpath('basis'))
 addpath(genpath('common'))
@@ -20,7 +22,7 @@ addpath(genpath('projections'))
 tic
 %if ~exist('picture','var')
 picture=imread(name);
-Full_Picture=im2double(rgb2gray(imresize(picture,51./size(picture,1))));
+Full_Picture=im2double(rgb2gray(imresize(picture,image_size./size(picture,1))));
 L=size(Full_Picture,1);
 N=floor(L/2);
 [x, y]=meshgrid(-N:N, -N:N);

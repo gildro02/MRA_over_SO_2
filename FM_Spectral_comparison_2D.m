@@ -2,21 +2,23 @@
 % bound, as a function of the SNR for different distributions.
 
 %% Parameter Setup
+close all;
 N=1e6; %num of rotated photos;
 B=10;
-Q=1;
-
-num_rep=50;
-sigma_vec_reduced=logspace(0,3,50).';
+Q=2;
+size_image=51;
+num_rep=30;
+%sigma_vec_reduced=logspace(0,0,1).';
+sigma_vec_reduced=logspace(-2.5,2.5,40).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
 
 sigma_vec=repelem(sigma_vec_reduced,num_rep);
+f_vec=[0,0.1];
 %f_vec=[0,0.1,1,2];
-f_vec=[0,0.1,1,2];
 %f_vec=[0];
-isUniformPowerSpectrum=[0,1];
-%isUniformPowerSpectrum=[0];
+%isUniformPowerSpectrum=[0,1];
+isUniformPowerSpectrum=[0];
 
 
 err_squared_FM=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
@@ -24,6 +26,11 @@ err_squared_Spectral_true=zeros(length(sigma_vec),length(f_vec),length(isUniform
 err_squared_Spectral_emp=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
 dist_from_circ=zeros(length(f_vec),length(isUniformPowerSpectrum));
 bound=zeros(length(f_vec),length(isUniformPowerSpectrum));
+a_est_spectral=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum),(2*B+1)*Q);
+a_est_FM=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum),(2*B+1)*Q);
+
+theta_min_spectral=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
+theta_min_FM=zeros(length(sigma_vec),length(f_vec),length(isUniformPowerSpectrum));
 
 M=2*B+1;
 W_M=(1/sqrt(M))*dftmtx(M);
@@ -37,9 +44,12 @@ load(freq_file_name);
 %% Definition of Picture & Cutting Higher Frequencies
 images=cell(length(isUniformPowerSpectrum),1);
 a_symm_1B_cell=cell(length(isUniformPowerSpectrum),1);
-
-[a_symm_1B_cell{1},images{1}]=Generate_Picture_cut('.\Flower_Images\Oxalis_tetraphylla_flower.jpg',B,Q,isUniformPowerSpectrum(1));
-[a_symm_1B_cell{2},images{2}]=Generate_Picture_cut('.\Flower_Images\Oxalis_tetraphylla_flower.jpg',B,Q,isUniformPowerSpectrum(2));
+image_folder='Flower_Images';
+image_name='Oxalis_tetraphylla_flower.jpg';
+for UPS=1:length(isUniformPowerSpectrum)
+    [a_symm_1B_cell{UPS},images{UPS},Phi_ns_mat]=Generate_Picture_cut(['.\' image_folder '\' image_name],B,Q,size_image,isUniformPowerSpectrum(UPS));
+end
+% Note: same Phi_ns_mat.
 P_a_cell=cellfun(@(x) abs(x).^2,a_symm_1B_cell,"UniformOutput",false);
 
 %% Numerics
@@ -78,8 +88,11 @@ for UPS=1:length(isUniformPowerSpectrum)
         for sigma_index=1:length(sigma_vec)
             toc
             disp("f_index="+f_index+", sigma_index="+sigma_index+", UPS="+UPS)
-            done_percent=100.*(f_index*sigma_index*UPS)./...
-                (length(sigma_vec)*length(f_vec)*length(isUniformPowerSpectrum));
+            current_iteration=sigma_index + length(sigma_vec)*(f_index-1)...
+                + length(sigma_vec)*length(f_vec)*(UPS-1);
+            total_iterations=length(sigma_vec)*length(f_vec)*length(isUniformPowerSpectrum);
+
+            done_percent=100.*(current_iteration)./(total_iterations);
             disp(done_percent+"% done");
             
             sigma=sigma_vec(sigma_index); %noise level
@@ -171,9 +184,11 @@ for UPS=1:length(isUniformPowerSpectrum)
             rho_approx_symm_1B= [conj(flip(rho_approx_half_1B(2:end))); rho_approx_half_1B];
             varrho_approx=repelem(rho_approx_symm_1B,Q);
             
-            a_approx_symm_1B=M_1./(2*pi.*varrho_approx);
-            [err_squared_FM(sigma_index,f_index,UPS),theta_min]=...
-                circ_error_continuous_unrestricted_2D(a_approx_symm_1B,a_symm_1B,Q,B);
+            a_approx_symm_1B_FM=M_1./(2*pi.*varrho_approx);
+            [err_squared_FM(sigma_index,f_index,UPS),theta_min_FM(sigma_index,f_index,UPS)]=...
+                circ_error_continuous_unrestricted_2D(a_approx_symm_1B_FM,a_symm_1B,Q,B);
+            %flip angle so that est rotated is the original.
+            %theta_min_FM(sigma_index,f_index,UPS)=-theta_min_FM(sigma_index,f_index,UPS);
             %% Spectral Algorithm
             C=BCCB(zeta);
             
@@ -232,7 +247,9 @@ for UPS=1:length(isUniformPowerSpectrum)
                 .*sqrt(P_a_emp);
             [err_squared_Spectral_emp(sigma_index,f_index,UPS),l_T_emp]=...
                 Circ_Error_Continuous_2D(a_est_T_emp,a_symm_1B,Q,B);
-            
+
+            theta_min_spectral(sigma_index,f_index,UPS)=2*pi*l_T_emp/(2*B+1);
+
             dist_from_circ(f_index,UPS)=(Q^2)*sum(abs((conj(rho_hat_half_2B(2:end))-flip(rho_hat_half_2B(2:end))).^2)...
                 .*(k_half_2B(2:end).'.*(flip(k_half_2B(2:end).')))./(2*B+1));
             
@@ -247,67 +264,51 @@ for UPS=1:length(isUniformPowerSpectrum)
             if err_squared_Spectral_emp(sigma_index,f_index,UPS)>=5e1
                 %error()
             end
+            %% Save resulting estimations, rotated back:
+            phase_matrix_FM=repmat(exp(1i.*(-B:B).*theta_min_FM(sigma_index,f_index,UPS)),[Q,1]);
+            phase_matrix_spectral=repmat(exp(1i.*(-B:B).*theta_min_spectral(sigma_index,f_index,UPS)),[Q,1]);
+            %shouldnt have conj, need to check we is needed
+            
+            a_approx_symm_1B_FM_rotated=vec(phase_matrix_FM.*mat(a_approx_symm_1B_FM,Q,B));
+            a_est_T_emp_rotated=vec(phase_matrix_spectral.*mat(a_est_T_emp,Q,B));
+            
+            a_est_FM(sigma_index,f_index,UPS,:)=a_approx_symm_1B_FM_rotated;
+            a_est_spectral(sigma_index,f_index,UPS,:)=a_est_T_emp_rotated ;
+            
+            
+            
+
         end
     end
 end
 
-%% Plot Image
-%{
-%% Plots
-close all
-figures=cell(length(isUniformPowerSpectrum),1);
-energy_of_a=zeros(length(isUniformPowerSpectrum),1);
-SNR=zeros(length(sigma_vec_reduced),length(isUniformPowerSpectrum));
-f_indecies_for_plot=[2];
-for UPS=1:length(isUniformPowerSpectrum)
-    energy_of_a(UPS)=sum(abs(a_symm_1B_cell{UPS}).^2);
-    SNR(:,UPS)=energy_of_a(UPS)./((2*B+1)*Q*sigma_vec_reduced.^2);
 
-    figures{UPS}=figure;
-    err_FM_for_plot=mean(reshape(err_squared_FM(:,f_indecies_for_plot,UPS),num_rep,num_unique_sigma),1).'./energy_of_a(UPS);
-    err_spectral_for_plot=mean(reshape(err_squared_Spectral_emp(:,f_indecies_for_plot,UPS),num_rep,num_unique_sigma),1).'./energy_of_a(UPS);
-    subplot(1,2,2)
-    loglog(SNR(:,UPS),err_spectral_for_plot);
-    if UPS==1
-        title("Non Uniform Power Spectrum")
-    end
-    if UPS==2
-        title("Uniform Power Spectrum")
-    end
-    hold on
-    loglog(SNR(:,UPS),err_FM_for_plot);
-    yline(bound(f_indecies_for_plot,UPS));
-    axis tight
-    legend("spectral","FM")
-
-    subplot(1,2,1)
-    imagesc(images{UPS})
-    set(gca,'ydir','normal')
-    axis off
-    colormap gray
-    colorbar('SouthOutside')
-end
-%}
-%% Plot Graphs
+%% %%%%%%%%%%%% Plots
 %close all
 figures=cell(length(isUniformPowerSpectrum),1);
+image_approx_figures=cell(length(f_vec), length(isUniformPowerSpectrum));
+image_true_figures=cell(length(isUniformPowerSpectrum),1); 
 energy_of_a=zeros(length(isUniformPowerSpectrum),1);
 SNR=zeros(length(sigma_vec_reduced),length(isUniformPowerSpectrum));
 f_indecies_for_plot=[3 4];
 
-%push test_number up by 1:
+%push test_number up by 1, make directory of test
 load('./Figures_Thesis/Comparison_2D_Archive/test_number')
 test_number=test_number+1;
 save('./Figures_Thesis/Comparison_2D_Archive/test_number.mat','test_number')
 test_end_string="TestNumber_"+test_number;
 mkdir('./Figures_Thesis/Comparison_2D_Archive', test_end_string);
 
+
+%% Plot the errors
 for UPS=1:length(isUniformPowerSpectrum)
     energy_of_a(UPS)=sum(abs(a_symm_1B_cell{UPS}).^2);
     SNR(:,UPS)=energy_of_a(UPS)./((2*B+1)*Q*sigma_vec_reduced.^2);
     figures{UPS}=figure;
     
     for f_index=1:length(f_indecies_for_plot)
+
+
         err_FM_for_plot=mean(reshape(err_squared_FM(...
             :,f_index,UPS),num_rep,num_unique_sigma),1).'./energy_of_a(UPS);
         err_spectral_for_plot=mean(reshape(err_squared_Spectral_emp(...
@@ -376,4 +377,74 @@ for UPS=1:length(isUniformPowerSpectrum)
     saveas(figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.png'));
     print(figures{UPS},'-depsc',strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", figure_string,'.eps'));
 end
-disp("remember, f_vec is of length 4 need to check those graphs too")
+%disp("remember, f_vec is of length 4 need to check those graphs too")
+
+%% Plot the resulting image:
+
+sigma_index_reduced_image_plot=30;
+
+for UPS=1:length(isUniformPowerSpectrum)
+    for f_index=1:length(f_indecies_for_plot)
+        
+        image_approx_figures{f_index,UPS}=figure;
+        image_approx_FM=coeff2image(a_est_FM(sigma_index_reduced_image_plot,f_index,UPS,:)...
+            ,Phi_ns_mat,size_image);
+        image_approx_Spectral=coeff2image(a_est_spectral(sigma_index_reduced_image_plot,f_index,UPS,:)...
+            ,Phi_ns_mat,size_image);
+        
+        SNR_image_plot=SNR(sigma_index_reduced_image_plot,UPS);
+        SNR_image_plot_rounded=round(SNR_image_plot,2);
+        subplot(1,2,1)
+        imagesc(image_approx_FM)
+        title("FM Recovery")
+        daspect([1 1 1])
+        set(gca,'ydir','normal')
+        axis off
+        colorbar
+        colormap parula
+        subplot(1,2,2)
+        imagesc(image_approx_Spectral)
+        title("Spectral Recovery")
+        daspect([1 1 1])
+        set(gca,'ydir','normal')
+        axis off
+        colorbar
+        colormap parula
+        title_string = "$"+"FM\:vs\:Spectral\:Algorithm\:Recovery,\:";
+        if isUniformPowerSpectrum(UPS)==1
+            title_string = title_string+"Uniform\:PS"+"$";
+            image_file_type = "Uniform_Image";
+            image_true_title="Uniform Image";
+        else 
+            title_string = title_string+"Non\:Uniform\:PS"+"$";
+            image_file_type = "Nonuniform_Image";
+            image_true_title="NonUniform Image";
+        end
+        dist_title=round(dist_from_circ(f_index,UPS),4);
+        dist_title_underscore=strrep(num2str(dist_title),".","_");
+        image_file_string="dist_"+dist_title_underscore+image_file_type;
+
+        subtitle_string="$||T-C_{\underline{h}}||^2 = "+dist_title+...
+            ",\:\textnormal{SNR}="+SNR_image_plot_rounded+"$";
+        title_cell={title_string,subtitle_string};
+        sgtitle(title_cell,"Interpreter","latex")
+
+
+        saveas(image_approx_figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string,'.fig'));
+        saveas(image_approx_figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string,'.png'));
+        print(image_approx_figures{UPS},'-depsc',strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string,'.eps'));
+    end
+    image_true_figures{UPS}=figure;
+    imagesc(images{UPS});
+    daspect([1 1 1])
+    title(image_true_title);
+    set(gca,'ydir','normal')
+    axis off
+    colorbar
+    colormap parula
+    image_file_string_true=strcat("True_",image_file_type);
+    saveas(image_true_figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string_true,'.fig'));
+    saveas(image_true_figures{UPS},strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string_true,'.png'));
+    print(image_true_figures{UPS},'-depsc',strcat('./Figures_Thesis/Comparison_2D_Archive/', test_end_string, "/", image_file_string_true,'.eps'));
+end
+ 
