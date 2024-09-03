@@ -7,9 +7,9 @@ N=1e6; %num of rotated photos;
 B=10;
 Q=2;
 size_image=51;
-num_rep=30;
+num_rep=10;
 %sigma_vec_reduced=logspace(0,0,1).';
-sigma_vec_reduced=logspace(-2.5,2.5,40).';
+sigma_vec_reduced=logspace(-2.5,2.5,30).';
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
 
