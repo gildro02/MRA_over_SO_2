@@ -13,9 +13,10 @@ data = struct();
 for i = 1:numel(vars)
     var_name = vars(i).name;
     var_size = vars(i).bytes / 8; % Convert bytes to doubles
+    var_class = vars(i).class;
     
     % Check if the variable size is below the threshold
-    if var_size <= size_threshold
+    if var_size <= size_threshold && ~isequal(var_class, 'cell')
         % Add "1D" suffix to the variable name
         new_var_name = [var_name '_2D'];
         

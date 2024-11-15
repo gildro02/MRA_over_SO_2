@@ -10,6 +10,8 @@ size_image=51;
 num_rep=10;
 %sigma_vec_reduced=logspace(0,0,1).';
 sigma_vec_reduced=logspace(-2.5,2.5,30).';
+%sigma_vec_reduced=logspace(-7,2,30).';
+%sigma_vec_reduced = 0;
 %sigma_vec_reduced=zeros(10,1);
 num_unique_sigma=length(sigma_vec_reduced);
 
@@ -161,7 +163,7 @@ for UPS=1:length(isUniformPowerSpectrum)
             end
             weights_k=cell(1,B); %max number of approximations x max freq-1
             for k=2:B
-                weights_k{k}=exp(-abs(ceil(k/2)-(1:k-1).')); %lorentzian of length n centered at ceil(n/2)
+                weights_k{k}=exp(-abs(ceil(k/2)-(1:k-1).')); %lorentzian of length k-1 centered at ceil(n/2)
                 weights_k{k}=weights_k{k}./sum(weights_k{k}); %normalize to sum 1.
             end
             %%

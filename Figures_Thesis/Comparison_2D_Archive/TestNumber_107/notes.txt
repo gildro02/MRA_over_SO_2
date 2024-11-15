@@ -1,0 +1,1 @@
+was good, made with sigma_min=10^-5 and sigma_max=10^0.
