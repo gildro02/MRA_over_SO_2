@@ -19,7 +19,6 @@ addpath(genpath('basis'))
 addpath(genpath('common'))
 addpath(genpath('projections'))
 
-tic
 %if ~exist('picture','var')
 picture=imread(name);
 Full_Picture=im2double(rgb2gray(imresize(picture,image_size./size(picture,1))));
@@ -60,7 +59,6 @@ Proj_Picture=zeros(L,L);
 Proj_Picture(r<=N)=Compressed_Proj_Picture;
 Proj_Picture=real(Proj_Picture); %%picture we will use
 
-toc
 
 %figure
 %imagesc(Proj_Picture)
