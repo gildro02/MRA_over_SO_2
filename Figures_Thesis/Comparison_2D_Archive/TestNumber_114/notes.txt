@@ -1,0 +1,1 @@
+Using squared moment error, first sort the moment error and then average over the sorted ones

@@ -1,0 +1,2 @@
+Using squared moment error, first sort the moment error and then average over the sorted ones.
+N=1e5, NEED A MORE COMPREHENSIVE TEST - TOO SHORT, i WAS AN IDIOT

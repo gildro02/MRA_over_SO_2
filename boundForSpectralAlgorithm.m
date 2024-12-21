@@ -33,11 +33,9 @@ M_2_C = generateCirculantSecondMomentBiased(parameters);
 delta_kappa = max(min(abs(D_T_sorted(kappa_T) - D_C_sorted(1:end ~= kappa_T))), ...
     min(abs(D_C_sorted(kappa_T) - D_T_sorted(1:end ~= kappa_T))));
 
-% Get the distance of T from its circulant approximation C, equivalent to
-% the distance between M_2_C_mathcal and M_2_T_mathcal. This is the exact
-% formula for the distance, as written in the paper.
-dist_from_circ = (Q ^ 2) * sum(abs((conj(rho_hat_half_2B(2:end)) - flip(rho_hat_half_2B(2:end))) .^ 2)...
-    .*(k_half_2B(2:end).' .* (flip(k_half_2B(2:end).'))) ./ (2*B + 1));
+% Get the squared distance of T from its circulant approximation C, equivalent to
+% the distance between M_2_C_mathcal and M_2_T_mathcal.
+dist_from_circ = distanceFromCirculant(Q, B, rho_hat_symm_2B);
 
 % Get the bound on the squared error of the spectral algorithm:
 bound = 2 * Q * (2*B + 1) * max(P_a) .* (1 - sqrt(1 - dist_from_circ ./ delta_kappa .^ 2));

@@ -1,9 +1,10 @@
 % A function that take in all the relevant parameters to the 2D numerical
 % experement (B, Q, N, sigma, the distribution rho, a, ex....) and outputs the
 % resulting a and it's corresponding error (for both algorithms).
-% ALSO OUTPUT THE MOMENT ERROR
+% Also, if "empirical" moments are specified, outputs the frovenious error
+% (squared) between the analytical and empirical moments.
 
-function [error_squared_FM, coeff_FM, error_squared_spectral, coeff_spectral] = runNumericalExperiment(varargin)
+function [error_squared_FM, coeff_FM, error_squared_spectral, coeff_spectral, M_1_diff, M_2_diff] = runNumericalExperiment(varargin)
 
 % Create an input parser object
 p = generateMRAInputParser();
@@ -13,28 +14,10 @@ parse(p, varargin{:})
 parameters = p.Results;
 
 % Generate the moments, based on the type requested by the user:
-if strcmp(parameters.moment_type, 'empirical') == 1
-    [M_1, M_2] = generateEmpiricalMoments(parameters);
-elseif strcmp(parameters.moment_type, 'analytical') == 1
-    [M_1, M_2] = generateAnalyticalMoments(parameters);
-else
-    error("Illegal Input!");
-end
+[M_1, M_1_diff, M_2, M_2_diff] = momentHandler(parameters);
 
 % Run the algorithms
-if strcmp(parameters.only_one_algorithm, 'Spectral') == 1 % If specified to only run the spectral algorithm
-    [coeff_spectral, error_squared_spectral] = spectralAlgorithm(M_1, M_2, parameters);
-    coeff_FM = [];
-    error_squared_FM = [];
-elseif strcmp(parameters.only_one_algorithm, 'Frequency Marching') ==  1 % If specified to only run the FM algorithm
-    [coeff_FM, error_squared_FM] = frequencyMarchingAlgorithm(M_1, M_2, parameters);
-    coeff_spectral = [];
-    error_squared_spectral = [];
-elseif isempty(parameters.only_one_algorithm) == 1 % If nothing specified (default) - run both
-    [coeff_spectral, error_squared_spectral] = spectralAlgorithm(M_1, M_2, parameters);
-    [coeff_FM, error_squared_FM] = frequencyMarchingAlgorithm(M_1, M_2, parameters);
-else % Error in specification
-    error("Illegal Input!");
-end
+[error_squared_FM, coeff_FM, error_squared_spectral, coeff_spectral] = ...
+    methodOfMomentsAlgorithmsHandler(M_1, M_2, parameters);
 
 end

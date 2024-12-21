@@ -1,0 +1,1 @@
+sigma = 0.1, N from 1e3 to 1e5
