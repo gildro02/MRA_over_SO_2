@@ -1,5 +1,5 @@
 %% Define variables
-N = 1e5;
+N = 1e6;
 B = 10;
 Q = 2;
 t = -pi:1e-4:pi;
@@ -8,13 +8,13 @@ moment_type = 'empirical';
 %moment_type = 'analytical';
 force_pure_phases = false;
 
-num_unique_sigma = 120;
-num_rep_sigma = 1000;
-sigma_vec_reduced = logspace(-5, 0, num_unique_sigma).';
+num_unique_sigma = 40;
+num_rep_sigma = 400;
+sigma_vec_reduced = logspace(-1.5, 0.5, num_unique_sigma).';
 sigma_vec = repelem(sigma_vec_reduced, num_rep_sigma);
 
 %% Generate distribution:
-f = 0;
+f = 1;
 amp = 1;
 temp = [0.00195583374369666 + 0.00530869159003379i;0.00195583374369666 + 0.00474988194897760i;0.00195583374369666 + 0.00419107230792141i;0.00195583374369666 + 0.00363226266686522i;0.00195583374369666 + 0.00307345302580903i;0.00195583374369666 + 0.00251464338475285i;0.00195583374369666 + 0.00195583374369666i;0.00195583374369666 + 0.00139702410264047i;0.00195583374369666 + 0.000838214461584282i;0.00195583374369666 + 0.000279404820528094i;0.00195583374369666 - 0.000279404820528094i;0.00195583374369666 - 0.000838214461584282i;0.00195583374369666 - 0.00139702410264047i;0.00195583374369666 - 0.00195583374369666i;0.00195583374369666 - 0.00251464338475285i;0.00195583374369666 - 0.00307345302580903i;0.00195583374369666 - 0.00363226266686522i;0.00195583374369666 - 0.00419107230792141i;0.00195583374369666 - 0.00474988194897760i;0.00195583374369666 - 0.00530869159003379i]...
     .* exp(1i * (f * rand(2*B, 1)) .^ 0.2) * amp;
@@ -59,7 +59,7 @@ fig = plotErrorAsFunctionOfX(SNR, "SNR", error_squared_spectral_relative,...
 %% Save the plot:
 % Push test_number up by 1, make directory of test
 dir_path = makeNewTestDir();
-figure_name = "func_of_sigma_QEquals2_circulant.fig";
+figure_name = "func_of_sigma_QEquals2_circulant_N_1e6.fig";
 saveFigureAndNotes(fig, figure_name, dir_path);
 sizeThresholdKB = 1000;
 saveNumericVariablesBelowThreshold(dir_path, "all_numeric_variables", sizeThresholdKB);

@@ -14,8 +14,7 @@ assignRhoCoefficients(Q, B, rho_hat_symm_2B);
 M_1_true = a_symm_1B .* varrho .* (2*pi);
 
 %% 2nd Moment:
-T = BTTB(repmat(rho_hat_half_2B.', Q, 1));
-
+T = generateToeplitzMatrixFromDistribution(Q, B, rho_hat_symm_2B);
 % Bias Matrix:
 [bias_mat] = biasMatrixForSecondMoment(Q, B, sigma);
 

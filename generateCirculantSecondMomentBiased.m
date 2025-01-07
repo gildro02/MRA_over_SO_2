@@ -1,4 +1,4 @@
-% Input: a struct of all relavent parameters (B, Q, rho_hat_symm_2B, sigma,
+% Input: a struct of all relavent parameters (Q, B, rho_hat_symm_2B, sigma,
 % a_symm_1B)
 % Output: the second Biased Circulant moment.
 function [M_2_C] = generateCirculantSecondMomentBiased(parameters)
@@ -13,11 +13,8 @@ assignFrequencies(Q, B);
 % Assign the variations of Rho coefficients:
 assignRhoCoefficients(Q, B, rho_hat_symm_2B);
 
-% Define relevant vectors and matrices:
-h = (1 / (2*B + 1)) * (k_half_2B.' .* [0; conj(flip(rho_hat_half_2B(2:end)))]...
-    +(2*B + 1 - k_half_2B.') .* rho_hat_half_2B); %rho_hat_half_2B is defined in assignRhoCoefficients.
-zeta = repmat(h.', [Q, 1]);
-C = BCCB(zeta);
+% Define relevant block-circulant matrix C:
+C = generateCirculantMatrixFromDistribution(Q, B, rho_hat_symm_2B);
 
 % Define the unbiased circulant moment + Add the bias:
 M_2_C = 2 * pi * diag(a_symm_1B) * C * diag(a_symm_1B)'...

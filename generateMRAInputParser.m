@@ -38,4 +38,9 @@ addParameter(p, 'only_one_algorithm', [], @(x) only_one_algorithm_checker(x)); %
 % Forcing a_est_tilde to contain pure phases in the spectral algorithm
 % Default - false
 addParameter(p, 'force_pure_phases', false, @(x) islogical(x) & length(x) == 1) %check for true or false
+% Choose weather to use the restricted or unrestricted error function for
+% the spectral algorithm.
+% Default - 'unrestricted'.
+spectral_error_func_checker = @(x) (isstring(x) || ischar(x)) & (strcmp(x, 'unrestricted') || strcmp(x, 'restricted')); % checks for legal strings.
+addParameter(p, 'spectral_error_func', 'unrestricted', @(x) spectral_error_func_checker(x));
 end

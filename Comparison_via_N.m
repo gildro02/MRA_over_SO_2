@@ -6,10 +6,10 @@ resolution_error = 1e-4;
 moment_type = 'empirical';
 %moment_type = 'analytical';
 force_pure_phases = false;
-sigma = 0;
-num_unique_N = 75;
+sigma = 0.1;
+num_unique_N = 80;
 num_rep_N = 1000;
-N_vec_reduced = ceil(logspace(0, 6, num_unique_N).');
+N_vec_reduced = ceil(logspace(1, 6, num_unique_N).');
 N_vec = repelem(N_vec_reduced, num_rep_N);
 
 %% Generate distribution:
@@ -50,14 +50,18 @@ energy_of_a = sum(abs(a_symm_1B) .^ 2);
 SNR = energy_of_a ./ ((2*B + 1) * Q * sigma.^2);
 error_squared_spectral_relative = error_squared_spectral ./ energy_of_a;
 error_squared_FM_relative = error_squared_FM ./ energy_of_a;
-fig = plotErrorAsFunctionOfX(N_vec, "N", error_squared_spectral_relative,...
-    error_squared_FM_relative, num_rep_N, dist_from_circ);
-
+%fig = plotErrorAsFunctionOfX(N_vec, "N", error_squared_spectral_relative,...
+%    error_squared_FM_relative, num_rep_N, dist_from_circ, "mean");
+prctile_region = 20; % 50 +- prctile_region percentile
+fig = plotMRAError('variable', N_vec, 'num_rep', num_rep_N, 'mean_or_median', 'median',...
+'error_spectral', error_squared_spectral_relative, 'error_FM', error_squared_FM_relative,...
+'labels', {"N", "Relative Squared Error"}, 'title', '', 'std_bounds', true,...
+'std_factor_or_prctile_region', prctile_region);
 %% Save the plot:
 % Push test_number up by 1, make directory of test
 dir_path = makeNewTestDir();
-notes = "sigma = 0";
-figure_name = "infinite_snr.fig";
+notes = "sigma = 0.1";
+figure_name = "like_test_126_with_N_from_10.fig";
 saveFigureAndNotes(fig, figure_name, dir_path, notes);
 sizeThresholdKB = 2000; %CHECK BEFORE LARGE RUN!!!!
 saveNumericVariablesBelowThreshold(dir_path, "all_numeric_variables", sizeThresholdKB);
