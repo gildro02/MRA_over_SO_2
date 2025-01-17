@@ -8,7 +8,7 @@ moment_type = 'empirical';
 %moment_type = 'analytical';
 force_pure_phases = false;
 
-num_unique_sigma = 40;
+num_unique_sigma = 80;
 num_rep_sigma = 400;
 sigma_vec_reduced = logspace(-1.5, 0.5, num_unique_sigma).';
 sigma_vec = repelem(sigma_vec_reduced, num_rep_sigma);
@@ -53,13 +53,17 @@ SNR = energy_of_a ./ ((2*B + 1) * Q * sigma_vec .^ 2);
 
 error_squared_spectral_relative = error_squared_spectral ./ energy_of_a;
 error_squared_FM_relative = error_squared_FM ./ energy_of_a;
-fig = plotErrorAsFunctionOfX(SNR, "SNR", error_squared_spectral_relative,...
-    error_squared_FM_relative, num_rep_sigma, dist_from_circ);
+prctile_region = 20;
+fig = plotMRAError('variable', SNR, 'num_rep', num_rep_sigma, 'mean_or_median', 'median',...
+'error_spectral', error_squared_spectral_relative, 'error_FM', error_squared_FM_relative,...
+'labels', {"SNR", "Relative Squared Error"}, 'title', '',...
+'std_factor_or_prctile_region', prctile_region, 'is_x_math', false);
+
 
 %% Save the plot:
 % Push test_number up by 1, make directory of test
 dir_path = makeNewTestDir();
-figure_name = "func_of_sigma_QEquals2_circulant_N_1e6.fig";
+figure_name = "func_of_sigma_QEquals2_noncirculant_N_1e6.fig";
 saveFigureAndNotes(fig, figure_name, dir_path);
 sizeThresholdKB = 1000;
 saveNumericVariablesBelowThreshold(dir_path, "all_numeric_variables", sizeThresholdKB);

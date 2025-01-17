@@ -34,11 +34,18 @@ function saveFigureToPDF(figHandle, fileName, destFolder)
         error('File name must have a .pdf extension.');
     end
 
+    % Set the figure properties for tight cropping
+    set(figHandle, 'PaperPositionMode', 'auto');
+    set(figHandle, 'Units', 'Inches');
+    figPos = get(figHandle, 'Position'); % [left, bottom, width, height]
+    set(figHandle, 'PaperSize', [figPos(3), figPos(4)]);
+    set(figHandle, 'PaperPosition', [0, 0, figPos(3), figPos(4)]);
+
     % Construct the full file path
     fullFilePath = fullfile(destFolder, fileName);
 
-    % Save the figure in PDF format
-    print(figHandle, fullFilePath, '-dpdf', '-r1000'); % '-r1000' for high resolution
+    % Save the figure in PDF format with tight cropping
+    print(figHandle, fullFilePath, '-dpdf', '-r1000', '-painters');
 
     % Notify the user
     fprintf('Figure saved as PDF to: %s\n', fullFilePath);

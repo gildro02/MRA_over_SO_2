@@ -6,15 +6,16 @@ resolution_error = 1e-4;
 moment_type = 'empirical';
 %moment_type = 'analytical';
 force_pure_phases = false;
+spectral_algorithm_version = 'new';
 sigma = 0.1;
-num_unique_N = 80;
-num_rep_N = 1000;
-N_vec_reduced = ceil(logspace(1, 6, num_unique_N).');
+num_unique_N = 120;
+num_rep_N = 800;
+N_vec_reduced = ceil(logspace(3, 6, num_unique_N).');
 N_vec = repelem(N_vec_reduced, num_rep_N);
 
 %% Generate distribution:
-f = 0; %circulant
-amp = 1;
+f = 3; %circulant
+amp = 5;
 temp = [0.00195583374369666 + 0.00530869159003379i;0.00195583374369666 + 0.00474988194897760i;0.00195583374369666 + 0.00419107230792141i;0.00195583374369666 + 0.00363226266686522i;0.00195583374369666 + 0.00307345302580903i;0.00195583374369666 + 0.00251464338475285i;0.00195583374369666 + 0.00195583374369666i;0.00195583374369666 + 0.00139702410264047i;0.00195583374369666 + 0.000838214461584282i;0.00195583374369666 + 0.000279404820528094i;0.00195583374369666 - 0.000279404820528094i;0.00195583374369666 - 0.000838214461584282i;0.00195583374369666 - 0.00139702410264047i;0.00195583374369666 - 0.00195583374369666i;0.00195583374369666 - 0.00251464338475285i;0.00195583374369666 - 0.00307345302580903i;0.00195583374369666 - 0.00363226266686522i;0.00195583374369666 - 0.00419107230792141i;0.00195583374369666 - 0.00474988194897760i;0.00195583374369666 - 0.00530869159003379i]...
     .* exp(1i * (f * rand(2*B, 1)) .^ 0.2) * amp;
 %temp = [0.00195583374369666 + 0.00530869159003379i;0.00195583374369666 + 0.00474988194897760i;0.00195583374369666 + 0.00419107230792141i;0.00195583374369666 + 0.00363226266686522i;0.00195583374369666 + 0.00307345302580903i;0.00195583374369666 + 0.00251464338475285i;0.00195583374369666 + 0.00195583374369666i;0.00195583374369666 + 0.00139702410264047i;0.00195583374369666 + 0.000838214461584282i;0.00195583374369666 + 0.000279404820528094i;0.00195583374369666 - 0.000279404820528094i;0.00195583374369666 - 0.000838214461584282i;0.00195583374369666 - 0.00139702410264047i;0.00195583374369666 - 0.00195583374369666i;0.00195583374369666 - 0.00251464338475285i;0.00195583374369666 - 0.00307345302580903i;0.00195583374369666 - 0.00363226266686522i;0.00195583374369666 - 0.00419107230792141i;0.00195583374369666 - 0.00474988194897760i;0.00195583374369666 - 0.00530869159003379i];
@@ -41,27 +42,31 @@ for n = 1:length(N_vec)
         runNumericalExperiment('B', B, 'Q', Q, 'N', N_vec(n), 'sigma', sigma, 'rho_func',...
         rho_func, 't', t, 'rho_hat_symm_2B', rho_hat_symm_2B,...
         'a_symm_1B', a_symm_1B, 'moment_type', moment_type,...
-        'resolution_error', resolution_error, 'force_pure_phases', force_pure_phases);
+        'resolution_error', resolution_error, 'force_pure_phases', force_pure_phases,...
+        'spectral_algorithm_version', spectral_algorithm_version);
     disp("n = " + n);
     toc
+    run_time = toc;
 end
 %% Plot the errors
 energy_of_a = sum(abs(a_symm_1B) .^ 2);
 SNR = energy_of_a ./ ((2*B + 1) * Q * sigma.^2);
 error_squared_spectral_relative = error_squared_spectral ./ energy_of_a;
 error_squared_FM_relative = error_squared_FM ./ energy_of_a;
-%fig = plotErrorAsFunctionOfX(N_vec, "N", error_squared_spectral_relative,...
-%    error_squared_FM_relative, num_rep_N, dist_from_circ, "mean");
+
 prctile_region = 20; % 50 +- prctile_region percentile
+
 fig = plotMRAError('variable', N_vec, 'num_rep', num_rep_N, 'mean_or_median', 'median',...
 'error_spectral', error_squared_spectral_relative, 'error_FM', error_squared_FM_relative,...
-'labels', {"N", "Relative Squared Error"}, 'title', '', 'std_bounds', true,...
-'std_factor_or_prctile_region', prctile_region);
+'labels', {"n", "Relative Squared Error"}, 'title', '',...
+'std_factor_or_prctile_region', prctile_region, 'is_x_math', true);
+
 %% Save the plot:
+
 % Push test_number up by 1, make directory of test
 dir_path = makeNewTestDir();
-notes = "sigma = 0.1";
-figure_name = "like_test_126_with_N_from_10.fig";
+notes = "sigma = 0.1, made sure debias is correct";
+figure_name = "like_test_126_with_complex_noise_correct_debias.fig";
 saveFigureAndNotes(fig, figure_name, dir_path, notes);
 sizeThresholdKB = 2000; %CHECK BEFORE LARGE RUN!!!!
 saveNumericVariablesBelowThreshold(dir_path, "all_numeric_variables", sizeThresholdKB);

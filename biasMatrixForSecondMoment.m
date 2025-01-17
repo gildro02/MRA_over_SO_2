@@ -5,12 +5,17 @@ function [bias_mat] = biasMatrixForSecondMoment(Q, B, sigma)
 % Assign the frequencies:
 assignFrequencies(Q, B);
 
+% IF REAL NOISE IS USED, THIS IS THE RIGHT DEBIAS MATRIX.
+%{
 % Bias occurs only for q1 = q2, k1 = +-k2
 Logical_Bias_Mat = zeros((2*B + 1) * Q);
 Logical_Bias_Mat(k_symm_1B_Q_vec - k_symm_1B_Q_vec.' == 0&...
     q_full_1B_vec - q_full_1B_vec.' == 0) = 1; %q1 = q2, k1 = k2
 Logical_Bias_Mat(k_symm_1B_Q_vec + k_symm_1B_Q_vec.' == 0&...
     q_full_1B_vec - q_full_1B_vec.' == 0) = 1; %q1 = q2, k1 = -k2
+%}
 
+% IF COMPLEX NOISE IS USED, THIS IS THE RIGHT DEBIAS MATRIX.
+Logical_Bias_Mat = eye((2*B + 1) * Q);
 bias_mat = (sigma.^2) * Logical_Bias_Mat;
 end

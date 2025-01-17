@@ -19,9 +19,27 @@ a_half_1B_vec = vec(a_half_1B_mat);
 rotations = randsample(t, N, true, abs(rho_func(t))).';
 
 % Generate rotated versions of a_half_1B_mat:
+% real noise:
+%a_half_1B_mat_rot = a_half_1B_mat .* exp(-1i * k_half_1B_Q_mat .* permute(rotations, [3, 2, 1]))...
+%    + sigma * randn([size(a_half_1B_mat) N]);
 
+% Complex noise:
+
+% Noise at non-zero frequencies - var = sigma^2/2 for both real and
+% imaginary part.
+size_a_half_1B_mat_positive_k = [Q, B];
+noise_positive_freq = (sigma / sqrt(2)) .* (randn([size_a_half_1B_mat_positive_k N])...
+    + 1i .* randn([size_a_half_1B_mat_positive_k N]));
+
+% Noise at frequency zero - var = sigma^2, pure real number.
+noise_0_freq = sigma .* randn([Q 1 N]);
+
+% Combined noise matrix:
+noise = cat(2, noise_0_freq, noise_positive_freq);
+
+% Rotate Images and add noise:
 a_half_1B_mat_rot = a_half_1B_mat .* exp(-1i * k_half_1B_Q_mat .* permute(rotations, [3, 2, 1]))...
-    + sigma * randn([size(a_half_1B_mat) N]);
+    + noise;
 
 % Define the full (rotated versions of) a_symm_1B_rot via conjucation and
 % flip:
