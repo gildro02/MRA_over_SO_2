@@ -20,6 +20,8 @@ addParameter(p, 'labels', [], @(x) iscell(x) & length(x) == 2) %check for 2-leng
 addParameter(p, 'title', "", @(x) isstring(x) || ischar(x)) %check for string/char vector.
 addParameter(p, 'std_factor_or_prctile_region', [], @(x) isreal(x) & length(x) == 1 & x >= 0) %check for positive real number.
 addParameter(p, 'is_x_math', false, @islogical) %check for logical value.
+addParameter(p, 'y_asymptote_start_percent', [], @(x) isreal(x) & length(x) == 1 & x >= 0) %check for positive real number.
+addParameter(p, 'y_asymptote_val', [], @(x) isreal(x) & length(x) == 1 & x >= 0) %check for positive real number.
 
 % Parse the paramters
 parse(p, varargin{:})
@@ -118,6 +120,21 @@ if ~isempty(params.std_factor_or_prctile_region)
     end
 end
 
+% Plot asymptote for y:
+if ~isempty(params.y_asymptote_val)
+    % Set Default start to the begining of the x axis.
+    if isempty(params.y_asymptote_start_percent)
+        params.y_asymptote_start_percent = 0;
+    end
+    x_limits = xlim;
+    x_start = x_limits(1) .* (x_limits(2) ./ x_limits(1)) .^ ...
+        (params.y_asymptote_start_percent / 100); % Start % away from the right edge
+    x_end = x_limits(2);
+    loglog([x_start, x_end], [params.y_asymptote_val, params.y_asymptote_val], 'k--', 'LineWidth', 1.5);
+end
+    
+    
+    
 legend([plot_spectral, plot_FM], ...
     "Spectral Algorithm",...
     "Frequancy Marching",...

@@ -47,5 +47,8 @@ addParameter(p, 'spectral_error_func', 'unrestricted', @(x) spectral_error_func_
 % or the new one (without conjugation by W).
 spectral_algorithm_version_checker = @(x) (isstring(x) || ischar(x)) & (strcmp(x, 'new') || strcmp(x, 'old')); % checks for legal strings.
 addParameter(p, 'spectral_algorithm_version', 'new', @(x) spectral_algorithm_version_checker(x));
-
+% Choose whether to take the minimum bound over all possiable rotations of
+% the distribution (up to resolution bound_rotation_resolution),
+% or to just use the input distribution (if empty).
+addParameter(p, 'bound_rotation_resolution', [], @(x) isreal(x) & x > 0 & length(x) == 1); %check for real positive number
 end
