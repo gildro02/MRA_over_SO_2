@@ -9,7 +9,7 @@ force_pure_phases = false;
 spectral_algorithm_version = 'new';
 sigma = 1;
 % N_vec = [1, 1e3, 1e6];
-N_vec = [1]
+N_vec = [1, 1e2, 1e4, 1e6]
 % N = 3e5;
 % isUniformPowerSpectrum = true;
 isUniformPowerSpectrum = false;
@@ -34,7 +34,8 @@ image_folder = 'Flower_Images';
 % image_name = 'Oxalis_tetraphylla_flower.jpg';
 %image_name = 'flower-circle-border.jpg';
 %image_name = 'nonzero_coefficients_offdiagonal.jpg';
-image_name = 'fading_angular_dependence_shape.jpg';
+% image_name = 'fading_angular_dependence_shape.jpg';
+image_name = 'yin_yang_style.png';
 
 
 % UNIFORM POWER SPECTRUM
