@@ -1,1 +1,1 @@
-# Thesis_Git
+# This is the repository containing all the code for the paper "Provable algorithms for multi-reference alignment over SO(2)", https://arxiv.org/abs/2504.19140. The main function for numerical experiments is called runNumericalExperiment.m, and an exmaple for running it can be found in the scripts Comparison_via_N.m and Comparison_via_sigma.m. The function for calculating the bound is called boundForSpectralAlgorithm.m, with an example found in the script Comparison_Bound.m.
